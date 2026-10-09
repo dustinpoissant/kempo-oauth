@@ -1,0 +1,24 @@
+# Database for kempo-oauth's own test suite. Ports 5433-5444 are already claimed by the other kempo
+# repos (kempo-demo, kempo, kempo-media, kempo-files, kempo-thumbs, kempo-user-dirs,
+# kempo-payments, kempo-products, kempo-products-inventory, ...), so this one takes 5445 — they can
+# all be up at once.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kempo-oauth-test-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kempo
+      POSTGRES_PASSWORD: kempo
+      POSTGRES_DB: kempo_oauth_test
+    ports:
+      - "5445:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kempo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  postgres_test_data:

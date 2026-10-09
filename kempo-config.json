@@ -1,0 +1,154 @@
+{
+  "docs": "https://github.com/dustinpoissant/kempo-oauth#readme",
+  "git": "https://github.com/dustinpoissant/kempo-oauth",
+  "public-scope": "oauth",
+  "schema": "./server/db/schema.js",
+  "permissions": [
+    {
+      "name": "oauth:view",
+      "description": "See which sign-in providers are connected and which accounts have signed in with them"
+    },
+    {
+      "name": "oauth:unlink",
+      "description": "Disconnect a sign-in provider from a user’s account"
+    },
+    {
+      "name": "oauth:settings",
+      "description": "Turn sign-in providers on and off and change their client ids and secrets"
+    }
+  ],
+  "settings": [
+    {
+      "name": "base_url",
+      "value": "",
+      "type": "string",
+      "description": "The address this site is reached at, such as https://example.com. Leave empty to work it out from each request, which is fine for a site reached directly but wrong behind a proxy that changes the scheme or host. It is the base of the redirect URI each provider must be told about"
+    },
+    {
+      "name": "after_login_path",
+      "value": "/account",
+      "type": "string",
+      "description": "The page a visitor lands on after signing in with a provider, unless the page they came from asked for somewhere else. A path on this site"
+    },
+    {
+      "name": "link_verified_emails",
+      "value": "true",
+      "type": "boolean",
+      "description": "When someone signs in with a provider that has confirmed their email address, and an account with that address already exists, connect the two instead of refusing. Turn off to make every provider sign-in a separate account"
+    },
+    {
+      "name": "google_enabled",
+      "value": "false",
+      "type": "boolean",
+      "description": "Offer \"Continue with Google\" on the login and register pages. Needs a client id and secret as well"
+    },
+    {
+      "name": "google_client_id",
+      "value": "",
+      "type": "string",
+      "description": "Google OAuth client id. Not secret — it appears in the address the visitor is sent to"
+    },
+    {
+      "name": "google_client_secret",
+      "value": "",
+      "type": "secret",
+      "description": "Google OAuth client secret. Encrypted at rest and never sent to a browser"
+    },
+    {
+      "name": "github_enabled",
+      "value": "false",
+      "type": "boolean",
+      "description": "Offer \"Continue with GitHub\" on the login and register pages. Needs a client id and secret as well"
+    },
+    {
+      "name": "github_client_id",
+      "value": "",
+      "type": "string",
+      "description": "GitHub OAuth client id. Not secret — it appears in the address the visitor is sent to"
+    },
+    {
+      "name": "github_client_secret",
+      "value": "",
+      "type": "secret",
+      "description": "GitHub OAuth client secret. Encrypted at rest and never sent to a browser"
+    },
+    {
+      "name": "facebook_enabled",
+      "value": "false",
+      "type": "boolean",
+      "description": "Offer \"Continue with Facebook\" on the login and register pages. Needs a client id and secret as well"
+    },
+    {
+      "name": "facebook_client_id",
+      "value": "",
+      "type": "string",
+      "description": "Facebook OAuth client id. Not secret — it appears in the address the visitor is sent to"
+    },
+    {
+      "name": "facebook_client_secret",
+      "value": "",
+      "type": "secret",
+      "description": "Facebook OAuth client secret. Encrypted at rest and never sent to a browser"
+    },
+    {
+      "name": "x_enabled",
+      "value": "false",
+      "type": "boolean",
+      "description": "Offer \"Continue with X\" on the login and register pages. Needs a client id and secret as well"
+    },
+    {
+      "name": "x_client_id",
+      "value": "",
+      "type": "string",
+      "description": "X OAuth client id. Not secret — it appears in the address the visitor is sent to"
+    },
+    {
+      "name": "x_client_secret",
+      "value": "",
+      "type": "secret",
+      "description": "X OAuth client secret. Encrypted at rest and never sent to a browser"
+    },
+    {
+      "name": "microsoft_enabled",
+      "value": "false",
+      "type": "boolean",
+      "description": "Offer \"Continue with Microsoft\" on the login and register pages. Needs a client id and secret as well"
+    },
+    {
+      "name": "microsoft_client_id",
+      "value": "",
+      "type": "string",
+      "description": "Microsoft OAuth client id. Not secret — it appears in the address the visitor is sent to"
+    },
+    {
+      "name": "microsoft_client_secret",
+      "value": "",
+      "type": "secret",
+      "description": "Microsoft OAuth client secret. Encrypted at rest and never sent to a browser"
+    },
+    {
+      "name": "microsoft_tenant",
+      "value": "common",
+      "type": "string",
+      "description": "Microsoft: \"common\" lets any Microsoft account sign in. An app registered for one organisation only must use that organisation’s tenant id instead, or Microsoft refuses every sign-in."
+    }
+  ],
+  "groups": [
+    {
+      "name": "kempo-oauth:viewer",
+      "description": "Can see which providers are connected and who has signed in with them, without being able to change anything",
+      "permissions": [
+        "oauth:view"
+      ]
+    },
+    {
+      "name": "kempo-oauth:administrator",
+      "description": "Everything a viewer can do, plus disconnecting accounts and managing the providers’ client ids and secrets",
+      "permissions": [
+        "oauth:view",
+        "oauth:unlink",
+        "oauth:settings"
+      ]
+    }
+  ]
+}

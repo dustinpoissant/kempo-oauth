@@ -1,0 +1,66 @@
+<!--
+locked: true
+-->
+<page title="Sign-in Providers - Admin">
+<content>
+  <script type="module" src="/kempo/components/PermissionTarget.js"></script>
+  <script type="module" src="/kempo-ui/components/Tabs.js"></script>
+  <script type="module" src="/admin/extension/kempo-oauth/components/ProviderSettings.js"></script>
+  <script type="module" src="/admin/extension/kempo-oauth/components/LinkedAccounts.js"></script>
+
+  <div>
+    <h1>Sign-in Providers</h1>
+    <p class="tc-muted">
+      Let visitors sign in or register with an account they already have. Each provider needs an OAuth
+      app created in its own developer console; paste that app’s client id and secret here. Nothing
+      appears on the login and register pages until a provider is switched on and has both.
+    </p>
+
+    <k-tabs id="tabs" active="providers" persistent-id="kempo-oauth-admin-tab">
+      <k-tab id="providersTab" for="providers">Providers</k-tab>
+      <k-tab id="accountsTab" for="accounts">Connected accounts</k-tab>
+
+      <k-tab-content id="providersContent" name="providers">
+        <k-oauth-settings></k-oauth-settings>
+      </k-tab-content>
+
+      <k-tab-content id="accountsContent" name="accounts">
+        <k-oauth-accounts></k-oauth-accounts>
+      </k-tab-content>
+    </k-tabs>
+
+    <!--
+      k-tabs finds its tabs with a direct-child query, so nothing can wrap a <k-tab>/<k-tab-content>
+      pair — not even a hidden element. k-permission-target reaches in by id and hides the tab and
+      its pane in place instead. A courtesy only: the actual boundary is server-side, on each route.
+    -->
+    <k-permission-target has="oauth:settings" target="#providersTab, #providersContent"></k-permission-target>
+    <k-permission-target has="oauth:view" target="#accountsTab, #accountsContent"></k-permission-target>
+  </div>
+
+  <script type="module">
+    import { getAllCurrentUserPermissions } from '/kempo/sdk.js';
+
+    await customElements.whenDefined('k-tabs');
+
+    /*
+      persistent-id can restore whichever tab a returning visitor left open, including one this
+      visitor cannot see if their permissions changed since. The targets above hide a tab and its
+      pane; this makes sure a hidden one is never left selected.
+    */
+    const [error, data] = await getAllCurrentUserPermissions();
+    const permissions = new Set(error ? [] : (data?.permissions || []));
+
+    const tabs = document.getElementById('tabs');
+    if(tabs){
+      const visibility = {
+        providers: permissions.has('oauth:settings'),
+        accounts: permissions.has('oauth:view'),
+      };
+      if(!visibility[tabs.active]){
+        const fallback = Object.keys(visibility).find(name => visibility[name]);
+        if(fallback) tabs.active = fallback;
+      }
+    }
+  </script>
+</content>
