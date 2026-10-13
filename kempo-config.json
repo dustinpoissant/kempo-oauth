@@ -3,6 +3,21 @@
   "git": "https://github.com/dustinpoissant/kempo-oauth",
   "public-scope": "oauth",
   "schema": "./server/db/schema.js",
+  "widgets": [
+    {
+      "key": "accounts",
+      "title": "Social sign-in",
+      "description": "How many accounts are linked to a sign-in provider and which providers are offered.",
+      "icon": "login",
+      "element": "k-oauth-widget",
+      "module": "/oauth/components/AccountsWidget.js",
+      "defaultWidth": 2,
+      "defaultHeight": 1,
+      "minWidth": 1,
+      "permission": "oauth:view",
+      "priority": 110
+    }
+  ],
   "permissions": [
     {
       "name": "oauth:view",

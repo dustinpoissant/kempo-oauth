@@ -6,6 +6,7 @@ All notable changes to `kempo-oauth` are documented in this file.
 
 ### Added
 
+- **Dashboard widget.** A **Social sign-in** widget on the kempo admin dashboard showing how many accounts are linked and which providers are offered, with a **Provider settings** button, declared in `widgets` in `kempo-config.json`. Needs a kempo with the dashboard; ignored on older versions.
 First release. OAuth 2.0 sign-in and registration for kempo: Google, GitHub, Facebook, X and Microsoft.
 
 - Authorization-code flow with PKCE and `state`, stateless on the server (one HttpOnly cookie).

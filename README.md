@@ -70,3 +70,7 @@ DATABASE_URL=postgresql://kempo:kempo@localhost:5445/kempo_oauth_test SETTINGS_E
 ```
 
 Check for `(SKIPPED)` in the output: database suites skip themselves, and a skip reads as a pass. They also refuse any database not named `*_test`.
+
+## Dashboard widget
+
+Adds a **Social sign-in** widget to the kempo admin dashboard showing how many accounts are linked and which providers are offered, with a **Provider settings** button. It is declared in `widgets` in `kempo-config.json` and registered when the extension is installed or updated; people only see it if they hold its permission, and can hide, reorder or resize it from the dashboard's Customize dialog. Needs a kempo with the dashboard (see kempo's `docs/dashboard.md`); on an older kempo the entry is ignored.
