@@ -1,6 +1,6 @@
 {
   "name": "kempo-oauth",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Sign in with Google, GitHub, Facebook, X and Microsoft for kempo — OAuth 2.0 login and registration buttons, with the keys managed in the admin portal",
   "license": "MIT",
   "author": "Dustin Poissant",
