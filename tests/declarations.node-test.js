@@ -159,7 +159,7 @@ export default {
     const scope = config['public-scope'];
 
     if(flowPath !== `/${scope}/api`) return fail(`the cookie path is ${flowPath}, but the routes live under /${scope}/api`);
-    if(pkg.kempo['public-scope'] !== scope) return fail('package.json and kempo-config.json disagree about public-scope');
+    if('kempo' in pkg) return fail('package.json has a kempo field; public-scope and the rest live in kempo-config.json only');
     pass(flowPath);
   },
 
