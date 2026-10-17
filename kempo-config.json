@@ -8,7 +8,7 @@
       "key": "accounts",
       "title": "Social sign-in",
       "description": "How many accounts are linked to a sign-in provider and which providers are offered.",
-      "icon": "login",
+      "iconSrc": "/admin/extension/kempo-oauth/icons/login.svg",
       "element": "k-oauth-widget",
       "module": "/oauth/components/AccountsWidget.js",
       "defaultWidth": 2,
