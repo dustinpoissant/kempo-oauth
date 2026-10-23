@@ -214,7 +214,7 @@ export default !databaseReachable ? skipped(`${skipReason} — point DATABASE_UR
       const unverified = profile({ emailVerified: false });
       const [error, result] = await signIn({ provider: google, profile: unverified });
 
-      // The verification email goes through Resend; with no key configured that step may fail. What
+      // The verification email goes through kempo's email system; with no email extension installed that step may fail. What
       // must hold either way is that no session exists.
       if(result?.sessionToken) return fail('issued a session for an unverified address');
       if(result && !result.requiresVerification) return fail(`unexpected result ${JSON.stringify(result)}`);
