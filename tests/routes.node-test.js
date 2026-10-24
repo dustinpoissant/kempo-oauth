@@ -578,7 +578,6 @@ export default !databaseReachable ? skipped(`${skipReason} — point DATABASE_UR
           ['a privacy contact that is not an email', { global: { privacy_contact_email: 'not an email' } }],
           ['an over-long privacy operator', { global: { privacy_operator: 'x'.repeat(300) } }],
           ['a non-boolean enabled', { providers: { google: { enabled: 'true' } } }],
-          ['a tenant that would change the URL path', { providers: { microsoft: { tenant: '../evil' } } }],
           ['a provider entry that is not an object', { providers: { google: 'enabled' } }],
         ];
 

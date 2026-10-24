@@ -128,18 +128,6 @@ export default {
     pass('separators match each provider’s documentation');
   },
 
-  'Microsoft builds its endpoints from the tenant and refuses a tenant that could change the path': async ({ pass, fail }) => {
-    const microsoft = listProviders().find(provider => provider.name === 'microsoft');
-
-    const own = microsoft.endpoints({ tenant: 'contoso.onmicrosoft.com' });
-    if(own.authorize !== 'https://login.microsoftonline.com/contoso.onmicrosoft.com/oauth2/v2.0/authorize') return fail(`got ${own.authorize}`);
-
-    for(const tenant of ['../evil', 'a/b', 'x?y=z', '', undefined]){
-      if(!microsoft.endpoints({ tenant }).authorize.includes('/common/')) return fail(`tenant ${JSON.stringify(tenant)} reached the URL`);
-    }
-    pass('only letters, digits, dots and hyphens get through');
-  },
-
   /*
     The token exchange
   */

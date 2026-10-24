@@ -6,6 +6,9 @@ import safePath from '../../../../server/utils/flow/safePath.js';
 import signIn from '../../../../server/utils/accounts/signIn.js';
 import { FLOW_COOKIE, clearFlowCookie, setSessionCookie } from '../../../../server/http/cookies.js';
 import { sendBackWithError } from '../../../../server/http/redirects.js';
+import { findAccount } from '../../../../server/utils/accounts/store.js';
+import { startPending } from '../../../../server/utils/accounts/pending.js';
+import { setPendingCookie } from '../../../../server/http/cookies.js';
 
 /*
   The second leg: the provider sends the visitor back here with a code, or with an error if they
@@ -47,6 +50,16 @@ export default async (request, response) => {
 
   const [profileError, profile] = await fetchProfile({ provider, tokenResponse });
   if(profileError) return bail('profile', profileError.detail || profileError.msg);
+
+  // A provider that shares no email cannot be matched to anyone yet, so the person is asked for one first. Already-linked people skip it.
+  if(!profile.email && !(await findAccount(provider.name, profile.id))){
+    const [pendingError, pending] = await startPending({ provider, profile, mode, next });
+    if(pendingError) return bail('failed', pendingError.msg);
+
+    clearFlowCookie(response, { secure });
+    setPendingCookie(response, pending.id, { secure });
+    return response.redirect(`/${mode}?oauth_pending=1`);
+  }
 
   const [signInError, result] = await signIn({ provider, profile });
   if(signInError) return bail(signInError.reason || 'failed', signInError.reason ? null : signInError.msg);

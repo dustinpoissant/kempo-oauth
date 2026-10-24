@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer } from 'drizzle-orm/pg-core';
 
 /*
   One row per sign-in identity a person has connected: "this Google account is that kempo user".
@@ -47,4 +47,25 @@ export const kempoOauthDeletion = pgTable('kempoOauthDeletion', {
   provider: text('provider').notNull(),
   status: text('status').notNull(),
   requestedAt: timestamp('requestedAt').notNull(),
+});
+
+/*
+  A sign-in a provider completed without sharing an email address (X), waiting for the person to type one
+  in and prove they can read it. No account exists until the code is right (server/utils/accounts/pending.js).
+
+  Found by a random id that lives in an HttpOnly cookie. `codeHash` is a hash of the code, never the code,
+  so a copy of this table cannot be used to sign in. A row lasts fifteen minutes and is removed when used.
+*/
+export const kempoOauthPending = pgTable('kempoOauthPending', {
+  id: text('id').primaryKey(),
+  provider: text('provider').notNull(),
+  providerUserId: text('providerUserId').notNull(),
+  name: text('name'),
+  mode: text('mode').notNull(),
+  next: text('next').notNull(),
+  email: text('email'),
+  codeHash: text('codeHash'),
+  codeSentAt: timestamp('codeSentAt'),
+  attempts: integer('attempts').notNull(),
+  expiresAt: timestamp('expiresAt').notNull(),
 });

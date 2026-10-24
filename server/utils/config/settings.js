@@ -13,7 +13,7 @@ export const DEFAULTS = {
 };
 
 /*
-  Setting names are `<provider>_<field>` — `google_client_id`, `microsoft_tenant`. One function so
+  Setting names are `<provider>_<field>` — `google_client_id`, `x_client_secret`. One function so
   the settings route, the readers below and the static test that checks kempo-config.json can never
   disagree about what a field is called.
 */

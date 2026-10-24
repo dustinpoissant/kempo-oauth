@@ -2,7 +2,6 @@ import google from './google.js';
 import github from './github.js';
 import facebook from './facebook.js';
 import x from './x.js';
-import microsoft from './microsoft.js';
 
 /*
   The provider seam: everything outside this directory speaks one vocabulary, and a provider is the
@@ -57,7 +56,7 @@ export const registerProvider = provider => {
   registry.set(provider.name, provider);
 };
 
-[google, github, facebook, x, microsoft].forEach(registerProvider);
+[google, github, facebook, x].forEach(registerProvider);
 
 export const unregisterProvider = name => registry.delete(name);
 

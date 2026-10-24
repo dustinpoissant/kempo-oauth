@@ -73,7 +73,6 @@ export default {
     if(facebook[0].url !== 'https://example.com/privacy/') return fail(`privacy url: ${facebook[0].url}`);
     if(facebook[1].url !== 'https://example.com/oauth/api/data-deletion/facebook') return fail(`callback url: ${facebook[1].url}`);
     if(links('google').map(link => link.key).join() !== 'privacy') return fail('google should have a privacy field only');
-    if(links('microsoft').map(link => link.key).join() !== 'privacy') return fail('microsoft should have a privacy field only');
     if(links('github').length || links('x').length) return fail('github and x have no privacy field, so nothing should be offered');
     pass('');
   },

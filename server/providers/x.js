@@ -30,9 +30,8 @@ export default {
     if(!user?.id) return [{ code: 502, msg: 'X did not say who signed in' }, null];
 
     /*
-      X's OAuth 2.0 flow cannot share an email address at all, so a person who signs up with X has
-      none. The sign-in path gives that account an address that cannot receive mail (see
-      accounts/signIn.js), which is why a site that insists on verified emails cannot offer X.
+      X's OAuth 2.0 flow cannot share an email address at all. The sign-in asks the person for one and
+      proves it with a code before any account is made (see accounts/pending.js).
     */
     return [null, {
       id: String(user.id),

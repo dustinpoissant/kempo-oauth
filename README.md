@@ -1,6 +1,6 @@
 # kempo-oauth
 
-Sign in and register with Google, GitHub, Facebook, X and Microsoft on a [kempo](https://github.com/dustinpoissant/kempo) site. The client ids and secrets are managed in the admin portal; the buttons appear under the login and register forms.
+Sign in and register with Google, GitHub, Facebook and X on a [kempo](https://github.com/dustinpoissant/kempo) site. The client ids and secrets are managed in the admin portal; the buttons appear under the login and register forms.
 
 ## Install
 
@@ -33,8 +33,7 @@ Behind a proxy that changes the scheme or host, set **Site address** so the redi
 | Google | yes | yes, when Google says it is verified |
 | GitHub | yes (primary verified) | yes |
 | Facebook | yes | **no** — Facebook never says it was confirmed |
-| Microsoft | yes | **no** — a directory can hold any address |
-| X | **no** | — |
+| X | **no** — the person types an address and proves it with a code | yes, once the code is right |
 
 ## Privacy policy and data deletion
 
@@ -50,7 +49,6 @@ Which addresses to give each provider is shown on its card on the Sign-in Provid
 |---|---|---|
 | Facebook | yes (required) | yes: `https://your-site/oauth/api/data-deletion/facebook` |
 | Google | yes (consent screen) | no |
-| Microsoft | yes (app branding) | no |
 | GitHub | no field | no |
 | X | no field | no |
 
@@ -66,7 +64,7 @@ Which addresses to give each provider is shown on its card on the Sign-in Provid
 - A first-time sign-in whose email matches an existing account is connected to it **only if the provider vouches for the email** (and "Connect … with the same email" is on). Otherwise the visitor is told an account exists and to sign in the way they signed up.
 - If that existing account never verified its email, its password is invalidated and its sessions ended before connecting (guards against someone pre-registering your address).
 - Otherwise a new account is created, honouring `allow_registration` and `require_email_verification`. Its password is random and unknown; the person can set one with "forgot password".
-- X shares no email, so its accounts get an `…@oauth.invalid` placeholder. A site requiring verified emails cannot offer X.
+- X shares no email, so the visitor is asked for one in a dialog and proves it with a six-digit code. No account exists until the code is right, and the code is sent to the address they typed, so X works on sites that require verified emails.
 
 ## Security notes
 

@@ -239,7 +239,7 @@ export default class ProviderSettings extends ShadowComponent {
       </label>
       <p class="small tc-muted">
         Turned off, someone who signed up with a password and later uses Google with the same address gets a second account.
-        A provider that does not confirm emails (Facebook, Microsoft) is never connected to an existing account either way.
+        A provider that does not confirm emails (Facebook) is never connected to an existing account either way.
       </p>
 
       <h2>Privacy</h2>

@@ -134,30 +134,6 @@
       "value": "",
       "type": "secret",
       "description": "X OAuth client secret. Encrypted at rest and never sent to a browser"
-    },
-    {
-      "name": "microsoft_enabled",
-      "value": "false",
-      "type": "boolean",
-      "description": "Offer \"Continue with Microsoft\" on the login and register pages. Needs a client id and secret as well"
-    },
-    {
-      "name": "microsoft_client_id",
-      "value": "",
-      "type": "string",
-      "description": "Microsoft OAuth client id. Not secret — it appears in the address the visitor is sent to"
-    },
-    {
-      "name": "microsoft_client_secret",
-      "value": "",
-      "type": "secret",
-      "description": "Microsoft OAuth client secret. Encrypted at rest and never sent to a browser"
-    },
-    {
-      "name": "microsoft_tenant",
-      "value": "common",
-      "type": "string",
-      "description": "Microsoft: \"common\" lets any Microsoft account sign in. An app registered for one organisation only must use that organisation’s tenant id instead, or Microsoft refuses every sign-in."
     }
   ],
   "groups": [

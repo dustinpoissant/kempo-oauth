@@ -1,0 +1,13 @@
+<!--
+	owner: kempo-oauth
+-->
+<page template="email" title="Your sign-in code">
+<content>
+<h2>Your sign-in code</h2>
+<if condition="name"><p>Hi {{name}},</p></if>
+<if condition="!name"><p>Hello,</p></if>
+<p>Enter this code on the site to finish signing in with {{providerLabel}}:</p>
+<p class="ta-center"><strong>{{code}}</strong></p>
+<p class="tc-muted">The code expires in {{minutes}} minutes. If you did not try to sign in, you can ignore this email.</p>
+</content>
+</page>

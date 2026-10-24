@@ -1,7 +1,7 @@
 {
   "name": "kempo-oauth",
   "version": "0.2.2",
-  "description": "Sign in with Google, GitHub, Facebook, X and Microsoft for kempo — OAuth 2.0 login and registration buttons, with the keys managed in the admin portal",
+  "description": "Sign in with Google, GitHub, Facebook and X for kempo — OAuth 2.0 login and registration buttons, with the keys managed in the admin portal",
   "license": "MIT",
   "author": "Dustin Poissant <dustinpoissant@gmail.com>",
   "type": "module",
@@ -20,6 +20,7 @@
   "files": [
     "admin",
     "public",
+    "emails",
     "server",
     "install.js",
     "update.js",

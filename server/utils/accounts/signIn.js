@@ -23,7 +23,7 @@ import { readGlobal } from '../config/settings.js';
   or not exist (X shares none). The id cannot.
 
   **An existing account is only attached to by a *verified* email.** If it were enough for a
-  provider to report an address, anybody could register a Facebook or Microsoft account claiming
+  provider to report an address, anybody could register a Facebook account claiming
   `ceo@yourcompany.com` and sign straight in as them. So the provider has to say, in so many words,
   that it checked the address (`profile.emailVerified`), and the site owner can switch even that off
   (`link_verified_emails`). Otherwise the visitor is told an account already exists and to sign in
@@ -128,30 +128,27 @@ export default async ({ provider, profile: given }) => {
     /*
       Nobody has this email: it is a registration, which the site may have closed.
     */
+    // Nothing to make an account from: X and some others share no address, and the pending sign-in asks for one first.
+    if(!profile.email) return fail(403, 'no_email', `${provider.label} did not share an email address`);
+
     if(allowRegistration === false) return fail(403, 'registration_closed', 'Registration is currently disabled');
 
-    // X shares no email, and there is nowhere to send a verification link for an account without one.
-    if(!profile.email && requireVerification){
-      return fail(403, 'no_email', `${provider.label} did not share an email address, and this site requires one to be verified`);
-    }
-
-    const email = profile.email || `${provider.name}-${profile.id}@oauth.invalid`;
-    const name = (profile.name || (profile.email ? profile.email.split('@')[0] : `${provider.label} user`)).slice(0, 200);
+    const name = (profile.name || profile.email.split('@')[0]).slice(0, 200);
 
     const [createError, created] = await createUser({
       name,
-      email,
+      email: profile.email,
       // Unknown to everyone, including this extension. The account is reached through the provider,
       // or by resetting the password to one the person chooses.
       password: crypto.randomBytes(32).toString('hex'),
-      emailVerified: !!profile.email && profile.emailVerified,
+      emailVerified: !!profile.emailVerified,
     });
     if(createError) return [createError, null];
 
     await createAccount({ provider: provider.name, providerUserId: profile.id, userId: created.user.id, email: profile.email, name: profile.name });
 
     if(requireVerification && !created.user.emailVerified){
-      const [mailError] = await sendVerificationEmail({ userId: created.user.id, email, name });
+      const [mailError] = await sendVerificationEmail({ userId: created.user.id, email: profile.email, name });
       if(mailError) return [mailError, null];
     }
 

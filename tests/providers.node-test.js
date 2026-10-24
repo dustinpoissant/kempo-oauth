@@ -84,12 +84,6 @@ export default {
     pass('mapped');
   },
 
-  'Microsoft: an address is reported but never trusted': async ({ pass, fail }) => {
-    const [, profile] = await profileOf('microsoft', { 'https://graph.microsoft.com/oidc/userinfo': { sub: 'abc', name: 'M S', email: 'ms@example.com' } });
-    if(profile.emailVerified) return fail('a Microsoft directory can hold any address, so it must not be treated as verified');
-    if(profile.id !== 'abc') return fail('sub is the id');
-    pass('email kept, verified false');
-  },
 
   'a provider that fails to answer is an error': async ({ pass, fail }) => {
     for(const { name } of listProviders()){

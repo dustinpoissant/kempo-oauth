@@ -45,6 +45,14 @@ export const getProviders = () => request('/providers');
 
 export const getPrivacy = () => request('/privacy');
 
+export const getPending = () => request('/pending');
+
+export const sendPendingCode = email => request('/pending/email', json('POST', { email }));
+
+export const cancelPending = () => request('/pending', { method: 'DELETE' });
+
+export const confirmPendingCode = code => request('/pending/code', json('POST', { code }));
+
 export const getDeletionStatus = code => request(`/data-deletion-status${query({ code })}`);
 
 export const startUrl = ({ provider, mode = 'login', next } = {}) =>

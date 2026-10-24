@@ -17,9 +17,13 @@
 
 export const FLOW_COOKIE = 'kempo_oauth';
 
+export const PENDING_COOKIE = 'kempo_oauth_pending';
+
 const FLOW_PATH = '/oauth/api';
 
 const FLOW_MAX_AGE_SECONDS = 10 * 60;
+
+const PENDING_MAX_AGE_SECONDS = 15 * 60;
 
 const flowOptions = (secure, maxAge) => ({ httpOnly: true, secure, sameSite: 'lax', path: FLOW_PATH, maxAge });
 
@@ -29,6 +33,14 @@ export const setFlowCookie = (response, value, { secure }) => {
 
 export const clearFlowCookie = (response, { secure }) => {
   response.cookie(FLOW_COOKIE, '', flowOptions(secure, 1));
+};
+
+export const setPendingCookie = (response, id, { secure }) => {
+  response.cookie(PENDING_COOKIE, id, flowOptions(secure, PENDING_MAX_AGE_SECONDS));
+};
+
+export const clearPendingCookie = (response, { secure }) => {
+  response.cookie(PENDING_COOKIE, '', flowOptions(secure, 1));
 };
 
 export const setSessionCookie = (response, { sessionToken, expiresAt }) => {

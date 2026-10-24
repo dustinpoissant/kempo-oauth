@@ -228,22 +228,16 @@ export default !databaseReachable ? skipped(`${skipReason} — point DATABASE_UR
     await purge();
   },
 
-  'a provider that shares no email gets a placeholder address, or is refused where verification is required': async ({ pass, fail }) => {
+  'a provider that shares no email is refused by signIn, so no account is made from it': async ({ pass, fail }) => {
     await purge();
-    const p = profile({ email: null, emailVerified: false, id: `x-${Date.now()}` });
+    const id = `x-${Date.now()}`;
 
-    const [error, result] = await signIn({ provider: x, profile: p });
-    if(error) return fail(error.msg);
-    if(!result.user.email.endsWith('@oauth.invalid')) return fail(`placeholder was ${result.user.email}`);
-    if(result.user.emailVerified) return fail('a placeholder address cannot be verified');
-
-    await withSystemSetting('require_email_verification', true, 'boolean', async () => {
-      const [refused] = await signIn({ provider: x, profile: profile({ email: null, emailVerified: false, id: `x2-${Date.now()}` }) });
-      if(refused?.reason !== 'no_email') return fail(`expected no_email, got ${JSON.stringify(refused)}`);
-    });
+    const [refused] = await signIn({ provider: x, profile: profile({ email: null, emailVerified: false, id }) });
+    if(refused?.reason !== 'no_email') return fail(`expected no_email, got ${JSON.stringify(refused)}`);
+    if(await findAccount('x', id)) return fail('a link was made without an address');
 
     await purge();
-    pass('placeholder normally; refused when verification is required');
+    pass('no_email, and nothing created');
   },
 
   'a link left behind by a deleted user is replaced, not trusted': async ({ pass, fail }) => {
@@ -284,7 +278,7 @@ export default !databaseReachable ? skipped(`${skipReason} — point DATABASE_UR
     await purge();
     await signIn({ provider: google, profile: profile() });
     await signIn({ provider: google, profile: profile() });
-    const [, other] = await signIn({ provider: x, profile: profile({ email: null, emailVerified: false }) });
+    const [, other] = await signIn({ provider: x, profile: profile() });
 
     const [, all] = await listAccounts({});
     if(all.total !== 3 || all.accounts.length !== 3) return fail(`expected 3, got ${all.total}`);
