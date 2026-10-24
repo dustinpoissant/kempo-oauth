@@ -4,6 +4,8 @@ export default {
   icon: 'microsoft.svg',
   mono: false,
   consoleUrl: 'https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade',
+  // Whether the provider's own console asks for a privacy policy URL (checked against each console, not assumed).
+  privacyField: true,
   scopes: ['openid', 'email', 'profile'],
   scopeSeparator: ' ',
   pkce: true,

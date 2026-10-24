@@ -244,9 +244,10 @@ export default class ProviderSettings extends ShadowComponent {
 
       <h2>Privacy</h2>
       <p class="small tc-muted">
-        Providers will not let an app go live without a privacy policy, and Facebook also wants a way to delete a person's data.
-        This extension publishes a short policy for signing in at <a href=${`${this.data.privacyUrl}`} target="_blank" rel="noopener">${this.data.privacyUrl}</a>,
-        and a data-deletion callback; the addresses to give each provider are beside its redirect URI above.
+        The privacy policy and the data-deletion page are ordinary pages of this site, at <a href=${this.data.privacyUrl} target="_blank" rel="noopener">${this.data.privacyUrl}</a>
+        and <a href=${this.data.privacyUrl.replace(/privacy\/$/, 'data-deletion/')} target="_blank" rel="noopener">${this.data.privacyUrl.replace(/privacy\/$/, 'data-deletion/')}</a>.
+        Edit them in the admin like any page: this extension writes them on install and update, and never overwrites a page you have changed.
+        The addresses to give each provider are beside its redirect URI above.
       </p>
 
       <label>
@@ -261,14 +262,6 @@ export default class ProviderSettings extends ShadowComponent {
         <input type="email" placeholder="privacy@example.com" .value=${value('privacy_contact_email', 'privacyContactEmail')} @input=${event => this.editGlobal('privacy_contact_email', event.target.value)} />
       </label>
 
-      <label>
-        <span class="d-b">Your own privacy policy</span>
-        <span class="small tc-muted d-b">
-          The short policy above only covers signing in. If your site collects anything else, publish your own and put its address here:
-          the policy address given to providers, and the page at /oauth/privacy/, then point to yours. Leave empty to use the one provided.
-        </span>
-        <input type="text" placeholder="https://example.com/privacy" .value=${value('privacy_policy_url', 'privacyPolicyUrl')} @input=${event => this.editGlobal('privacy_policy_url', event.target.value)} />
-      </label>
     `;
   }
 

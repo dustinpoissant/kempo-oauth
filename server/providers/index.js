@@ -23,6 +23,7 @@ import microsoft from './microsoft.js';
     clientAuth: 'body',             // 'body' puts client_secret in the form, 'basic' uses an Authorization header
     authorizeParams: {},            // extra query parameters on the authorize URL
     extraFields: [],                // [{ name, label, help, default }] — provider-specific settings
+    privacyField: true,             // true when the provider's console has a privacy policy URL field to fill in
     deletion: { verify },           // optional: the provider calls this site when a person removes the app (see facebook.js)
     endpoints: config => ({ authorize, token }),
     profile: async ({ accessToken, tokenResponse, http }) => [error, profile],

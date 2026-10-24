@@ -4,6 +4,8 @@ export default {
   icon: 'github.svg',
   mono: true,
   consoleUrl: 'https://github.com/settings/developers',
+  // Whether the provider's own console asks for a privacy policy URL (checked against each console, not assumed).
+  privacyField: false,
   scopes: ['read:user', 'user:email'],
   scopeSeparator: ' ',
   pkce: false,

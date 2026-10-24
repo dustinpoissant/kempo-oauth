@@ -92,7 +92,7 @@ export default {
   },
 
   'no declared setting belongs to nobody': async ({ pass, fail }) => {
-    const owned = new Set([...listProviders().flatMap(fieldNames), 'base_url', 'after_login_path', 'link_verified_emails', 'privacy_operator', 'privacy_contact_email', 'privacy_policy_url']);
+    const owned = new Set([...listProviders().flatMap(fieldNames), 'base_url', 'after_login_path', 'link_verified_emails', 'privacy_operator', 'privacy_contact_email']);
     for(const name of declared.keys()) if(!owned.has(name)) return fail(`"${name}" is declared but no provider or global setting uses it`);
     pass(`${declared.size} settings, all in use`);
   },

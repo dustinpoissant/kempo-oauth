@@ -1,3 +1,4 @@
+import { writeSitePages } from './server/utils/privacy/pages.js';
 import { sql } from 'drizzle-orm';
 import db from 'kempo/server/db/index.js';
 
@@ -22,7 +23,21 @@ const INDEXES = [
   sql`CREATE INDEX IF NOT EXISTS "kempoOauthAccount_user_idx" ON "kempoOauthAccount" ("userId")`,
 ];
 
+/*
+  The privacy policy and data-deletion pages live in the site (see server/utils/privacy/pages.js). Written on
+  install and on every update: a page the owner has changed is kept, and a page they have not is replaced.
+*/
+const writePages = () => {
+  // Never in the in-memory test database: the pages belong to a site, and the tests run from this package's own folder.
+  if(process.env.KEMPO_DB === 'pglite') return;
+  for(const page of writeSitePages()){
+    if(page.status.startsWith('error')) console.warn(`[kempo-oauth] Could not write ${page.path}: ${page.status}`);
+  }
+};
+
 export default async () => {
+  writePages();
+
   for(const statement of INDEXES){
     try {
       await db.execute(statement);

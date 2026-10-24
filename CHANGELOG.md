@@ -4,6 +4,13 @@ All notable changes to `kempo-oauth` are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **The privacy policy and the data-deletion page are site pages now** (`/privacy/` and `/data-deletion/`), not pages served from the package. They are written on install and update with kempo's own rule for files an extension puts into a site: replaced while unedited, kept once the owner has changed them, and not brought back if deleted. Their facts (site name, operator, contact, providers) are filled in from settings.
+- **Each provider's card shows only the addresses its console asks for.** Facebook: privacy policy and data-deletion callback. Google and Microsoft: privacy policy. GitHub and X: none.
+- Removed the `privacy_policy_url` setting (the site's own page does that job now), the `/oauth/privacy/` and `/oauth/data-deletion/` pages, and the instructions address.
+- Facebook's data-deletion callback now also adds a `user:deleted` hook for kempo: the removal of the account is announced to other extensions.
+
 ### Added
 
 - **A privacy policy and a data-deletion callback**, so an app can be taken live with a provider without writing either. `/oauth/privacy/` is a short policy for signing in, filled in with the site's name, who runs it, how to reach them and the providers that are switched on; `/oauth/api/data-deletion/facebook` is the callback Facebook calls when someone removes the app (its `signed_request` is verified with the app secret; the person's account, sign-in links and sessions are deleted, an administrator's account is kept and only unlinked, and the answer is the confirmation code and status address Facebook expects); `/oauth/data-deletion/` gives instructions and shows what became of a request. Each provider's card on the settings screen shows the addresses it asks for, with Copy buttons, and there are new settings `privacy_operator`, `privacy_contact_email` and `privacy_policy_url` (your own policy instead of the one provided). Adds the table `kempoOauthDeletion`, which holds no personal data.

@@ -55,19 +55,13 @@
       "name": "privacy_operator",
       "value": "",
       "type": "string",
-      "description": "Who runs this site, as the privacy policy should name them: a person or a company. Shown on the privacy policy this extension publishes at /oauth/privacy/. Leave empty to say \"the site's operator\""
+      "description": "Who runs this site, as the privacy policy names them: a person or a company. Leave empty to say \"the operator of this site\""
     },
     {
       "name": "privacy_contact_email",
       "value": "",
       "type": "string",
-      "description": "The address people write to about their data, shown on the privacy policy at /oauth/privacy/ and on the data-deletion page. Providers such as Facebook expect the policy to give a way to reach you"
-    },
-    {
-      "name": "privacy_policy_url",
-      "value": "",
-      "type": "string",
-      "description": "The address of your own privacy policy, if you publish one. Leave empty to use the short one this extension provides at /oauth/privacy/, which only covers signing in with a provider. If your site collects anything else, write your own and put its address here"
+      "description": "The address people write to about their data. Shown on the privacy policy and the data-deletion page"
     },
     {
       "name": "google_enabled",

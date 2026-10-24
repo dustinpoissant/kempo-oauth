@@ -13,7 +13,7 @@ import { readGlobal, readProvider } from './settings.js';
 */
 export default async origin => {
   const global = await readGlobal();
-  const privacyUrl = global.privacyPolicyUrl || `${origin}/oauth/privacy/`;
+  const privacyUrl = `${origin}/privacy/`;
 
   const providers = await Promise.all(listProviders().map(async provider => {
     const config = await readProvider(provider);
@@ -25,11 +25,8 @@ export default async origin => {
       consoleUrl: provider.consoleUrl,
       redirectUri: `${origin}/oauth/api/callback/${provider.name}`,
       links: [
-        { key: 'privacy', label: 'Privacy policy URL', help: 'Most providers will not let an app go live without one.', url: privacyUrl },
-        ...(provider.deletion ? [
-          { key: 'deletion', label: 'Data deletion request callback URL', help: 'Called by the provider, with a signed request, when someone removes the app. Everything this site holds for that person is deleted.', url: `${origin}/oauth/api/data-deletion/${provider.name}` },
-          { key: 'deletionInstructions', label: 'Or data deletion instructions URL', help: 'If the provider offers instructions instead of a callback: a page that says how to have data deleted, and shows what became of a request.', url: `${origin}/oauth/data-deletion/` },
-        ] : []),
+        ...(provider.privacyField ? [{ key: 'privacy', label: 'Privacy policy URL', help: provider.name === 'facebook' ? 'Facebook will not let the app go live without one.' : 'Used for the app’s details on the provider’s consent screen.', url: privacyUrl }] : []),
+        ...(provider.deletion ? [{ key: 'deletion', label: 'Data deletion request callback URL', help: 'Called by the provider, with a signed request, when someone removes the app. Everything this site holds for that person is deleted.', url: `${origin}/oauth/api/data-deletion/${provider.name}` }] : []),
       ],
       enabled: config.enabled,
       clientId: config.clientId,

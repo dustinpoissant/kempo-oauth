@@ -90,22 +90,6 @@ export default async (request, response) => {
     updates.privacy_contact_email = address;
   }
 
-  if(incoming.privacy_policy_url !== undefined){
-    const raw = String(incoming.privacy_policy_url ?? '').trim();
-    if(raw){
-      let url;
-      try {
-        url = new URL(raw);
-      } catch {
-        return badRequest(response, 'Your own privacy policy address must be a full URL, such as https://example.com/privacy');
-      }
-      if(!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return badRequest(response, 'Your own privacy policy address must be a plain http or https URL');
-      updates.privacy_policy_url = url.href;
-    } else {
-      updates.privacy_policy_url = '';
-    }
-  }
-
   /*
     Provider settings
   */
@@ -154,7 +138,7 @@ export default async (request, response) => {
     });
   }
 
-  const allowed = new Set([...listProviders().flatMap(fieldNames), 'base_url', 'after_login_path', 'link_verified_emails', 'privacy_operator', 'privacy_contact_email', 'privacy_policy_url']);
+  const allowed = new Set([...listProviders().flatMap(fieldNames), 'base_url', 'after_login_path', 'link_verified_emails', 'privacy_operator', 'privacy_contact_email']);
 
   for(const [name, value] of Object.entries(updates)){
     // Belt and braces: nothing reaches setSetting that is not both a known field and declared.

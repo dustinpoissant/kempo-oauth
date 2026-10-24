@@ -4,6 +4,8 @@ export default {
   icon: 'x.svg',
   mono: true,
   consoleUrl: 'https://developer.x.com/en/portal/dashboard',
+  // Whether the provider's own console asks for a privacy policy URL (checked against each console, not assumed).
+  privacyField: false,
   // users.read cannot be granted without tweet.read.
   scopes: ['users.read', 'tweet.read'],
   scopeSeparator: ' ',

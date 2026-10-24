@@ -13,6 +13,8 @@ export default {
   icon: 'facebook.svg',
   mono: false,
   consoleUrl: 'https://developers.facebook.com/apps/',
+  // Whether the provider's own console asks for a privacy policy URL (checked against each console, not assumed).
+  privacyField: true,
   // Facebook's scopes are comma-separated.
   scopes: ['email', 'public_profile'],
   scopeSeparator: ',',

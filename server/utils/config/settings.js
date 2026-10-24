@@ -10,7 +10,6 @@ export const DEFAULTS = {
   linkVerifiedEmails: true,
   privacyOperator: '',
   privacyContactEmail: '',
-  privacyPolicyUrl: '',
 };
 
 /*
@@ -33,13 +32,12 @@ const read = async (name, fallback) => {
 };
 
 export const readGlobal = async () => {
-  const [baseUrl, afterLoginPath, linkVerifiedEmails, privacyOperator, privacyContactEmail, privacyPolicyUrl] = await Promise.all([
+  const [baseUrl, afterLoginPath, linkVerifiedEmails, privacyOperator, privacyContactEmail] = await Promise.all([
     read('base_url', DEFAULTS.baseUrl),
     read('after_login_path', DEFAULTS.afterLoginPath),
     read('link_verified_emails', DEFAULTS.linkVerifiedEmails),
     read('privacy_operator', DEFAULTS.privacyOperator),
     read('privacy_contact_email', DEFAULTS.privacyContactEmail),
-    read('privacy_policy_url', DEFAULTS.privacyPolicyUrl),
   ]);
 
   return {
@@ -48,7 +46,6 @@ export const readGlobal = async () => {
     linkVerifiedEmails: linkVerifiedEmails !== false,
     privacyOperator: String(privacyOperator || '').trim(),
     privacyContactEmail: String(privacyContactEmail || '').trim(),
-    privacyPolicyUrl: String(privacyPolicyUrl || '').trim(),
   };
 };
 

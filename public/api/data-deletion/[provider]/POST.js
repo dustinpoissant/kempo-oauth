@@ -29,7 +29,7 @@ export default async (request, response) => {
 
   const { baseUrl } = await readGlobal();
   response.json({
-    url: `${originOf(request, baseUrl)}/oauth/data-deletion/?code=${result.code}`,
+    url: `${originOf(request, baseUrl)}/data-deletion/?code=${result.code}`,
     confirmation_code: result.code,
   });
 };

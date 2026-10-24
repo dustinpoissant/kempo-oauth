@@ -4,6 +4,8 @@ export default {
   icon: 'google.svg',
   mono: false,
   consoleUrl: 'https://console.cloud.google.com/apis/credentials',
+  // Whether the provider's own console asks for a privacy policy URL (checked against each console, not assumed).
+  privacyField: true,
   scopes: ['openid', 'email', 'profile'],
   scopeSeparator: ' ',
   pkce: true,

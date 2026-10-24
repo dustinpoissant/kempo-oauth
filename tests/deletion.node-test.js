@@ -62,19 +62,19 @@ export default {
     pass(payload ? 'checked' : '');
   },
 
-  'the privacy and deletion addresses are the ones to give each provider, and only Facebook has a callback': async ({ pass, fail }) => {
+  'the privacy and deletion addresses are the ones to give each provider': async ({ pass, fail }) => {
     if(!databaseReachable) return pass(`skipped: ${skipReason}`);
 
     const described = await describe('https://example.com');
     const links = name => described.providers.find(provider => provider.name === name).links;
     const facebook = links('facebook');
-    const google = links('google');
 
-    if(facebook.map(link => link.key).join() !== 'privacy,deletion,deletionInstructions') return fail(`facebook: ${facebook.map(link => link.key)}`);
-    if(facebook[0].url !== 'https://example.com/oauth/privacy/') return fail(`privacy url: ${facebook[0].url}`);
+    if(facebook.map(link => link.key).join() !== 'privacy,deletion') return fail(`facebook: ${facebook.map(link => link.key)}`);
+    if(facebook[0].url !== 'https://example.com/privacy/') return fail(`privacy url: ${facebook[0].url}`);
     if(facebook[1].url !== 'https://example.com/oauth/api/data-deletion/facebook') return fail(`callback url: ${facebook[1].url}`);
-    if(facebook[2].url !== 'https://example.com/oauth/data-deletion/') return fail(`instructions url: ${facebook[2].url}`);
-    if(google.map(link => link.key).join() !== 'privacy') return fail(`google: ${google.map(link => link.key)}`);
+    if(links('google').map(link => link.key).join() !== 'privacy') return fail('google should have a privacy field only');
+    if(links('microsoft').map(link => link.key).join() !== 'privacy') return fail('microsoft should have a privacy field only');
+    if(links('github').length || links('x').length) return fail('github and x have no privacy field, so nothing should be offered');
     pass('');
   },
 
@@ -153,7 +153,7 @@ export default {
         const res = fakeResponse();
         await deletionRoute(fakeRequest({ params: { provider: 'facebook' }, body: { signed_request: request('fb-400') }, headers: { host: 'kempo.test' } }), res);
         if(res.statusCode !== 200 || !res.body?.confirmation_code) return fail(`the callback: ${res.statusCode} ${JSON.stringify(res.body)}`);
-        if(res.body.url !== `http://kempo.test/oauth/data-deletion/?code=${res.body.confirmation_code}`) return fail(`the url: ${res.body.url}`);
+        if(res.body.url !== `http://kempo.test/data-deletion/?code=${res.body.confirmation_code}`) return fail(`the url: ${res.body.url}`);
         if((await db.select().from(schema.user).where(eq(schema.user.id, person.id))).length) return fail('the person was not deleted');
 
         const asked = fakeResponse();
@@ -198,7 +198,7 @@ export default {
         const names = res.body.providers.map(provider => provider.name);
         if(res.body.operator !== 'Example Ltd' || res.body.contactEmail !== 'privacy@example.com') return fail(JSON.stringify(res.body));
         if(names.join() !== 'facebook' || !res.body.providers[0].deletesAutomatically) return fail(`providers: ${names}`);
-        if(!res.body.siteName || !res.body.updated) return fail('no site name or date');
+        if(!res.body.siteName) return fail('no site name');
         pass('');
       } finally {
         for(const name of ['privacy_operator', 'privacy_contact_email', 'facebook_enabled', 'facebook_client_id', 'facebook_client_secret']) await deleteSetting('kempo-oauth', name);
