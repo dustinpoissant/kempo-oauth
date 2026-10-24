@@ -183,5 +183,8 @@
         "oauth:settings"
       ]
     }
-  ]
+  ],
+  "hooks": {
+    "user:deleted": "./hooks/userDeleted.js"
+  }
 }

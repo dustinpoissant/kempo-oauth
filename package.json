@@ -25,7 +25,8 @@
     "update.js",
     "uninstall.js",
     "sdk.js",
-    "kempo-config.json"
+    "kempo-config.json",
+    "hooks"
   ],
   "repository": {
     "type": "git",
