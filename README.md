@@ -36,6 +36,25 @@ Behind a proxy that changes the scheme or host, set **Site address** so the redi
 | Microsoft | yes | **no** — a directory can hold any address |
 | X | **no** | — |
 
+## Privacy policy and data deletion
+
+Providers will not let an app go live without a **privacy policy**, and Facebook also wants a way to **delete a person's data**. This extension provides both, so there is nothing to write:
+
+| What | Address | Give it to |
+|---|---|---|
+| Privacy policy | `https://your-site/oauth/privacy/` | every provider that asks for one |
+| Data deletion request callback | `https://your-site/oauth/api/data-deletion/facebook` | Facebook: *Settings > Basic > Data deletion request URL > Data deletion callback URL* |
+| Data deletion instructions | `https://your-site/oauth/data-deletion/` | Facebook, if you prefer instructions to a callback |
+
+Each provider's card on the **Sign-in Providers** screen shows the addresses that provider asks for, with a Copy button, beside its redirect URI. Under **Privacy** on the same screen, set **who runs the site** and a **privacy contact email**, which the policy and the deletion page show.
+
+**The policy** is short, and says so: it covers what is collected when somebody signs in or registers with a provider (their name, email and the provider's id for them; the provider's access token is discarded after one use), the cookies involved, who else sees it, and how to have it deleted. It names only the providers that are switched on. **If your site collects anything else, write your own** and put its address in **Your own privacy policy**: that address is then what the screen shows for the providers, and `/oauth/privacy/` sends visitors to it.
+
+**The deletion callback** is what Facebook calls when somebody removes your app from their connected apps. It is public, and nothing happens until the request's signature is checked against the app secret (`signed_request`, HMAC-SHA256). The person it names then has their account, all of their sign-in links, their sessions and their group memberships deleted at once, and Facebook is answered with a confirmation code and the address of `/oauth/data-deletion/?code=…`, where the person can see what became of the request. The record of the request holds no personal data.
+- **An administrator's account is kept.** Only their link with that provider is removed, and the status page says so. Deleting a site's administrator because they removed an app from their Facebook settings could lock the site out of its own admin.
+- **Other extensions' data about a user is theirs to remove.** Kempo has no "user deleted" notice to tell them; if an extension keeps data about users, it needs its own way to clear it.
+- **If kempo cannot tell whether the person is an administrator, nothing is deleted** and the callback answers with an error, so the provider asks again.
+
 ## How accounts are matched
 
 - A returning person is found by the provider's **id**, never the email.
@@ -47,6 +66,17 @@ Behind a proxy that changes the scheme or host, set **Site address** so the redi
 ## Security notes
 
 Authorization code flow with PKCE (S256) and a per-attempt `state`, held in a short-lived HttpOnly `lax` cookie scoped to `/oauth/api`. Nothing is stored server-side mid-flow, and provider access tokens are discarded after reading the profile. Redirect targets (`next`, "after sign-in") must be paths on this site. Failures return to the login page as a short code, never text from the provider.
+
+## Settings
+
+| Setting | What it does |
+|---|---|
+| `base_url` | The public address, the base of every address above |
+| `after_login_path` | Where a visitor lands after signing in |
+| `link_verified_emails` | Connect a provider sign-in to an existing account with the same verified email |
+| `privacy_operator` | Who runs the site, as the privacy policy names them |
+| `privacy_contact_email` | Where people write about their data |
+| `privacy_policy_url` | Your own privacy policy, instead of the one provided |
 
 ## Permissions
 

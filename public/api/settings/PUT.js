@@ -24,7 +24,7 @@ import { gate } from '../../../server/http/gate.js';
 
   ```json
   {
-    "global": { "base_url": "https://example.com", "after_login_path": "/account", "link_verified_emails": true },
+    "global": { "base_url": "https://example.com", "after_login_path": "/account", "link_verified_emails": true, "privacy_contact_email": "privacy@example.com" },
     "providers": { "google": { "enabled": true, "client_id": "…", "client_secret": "…" } }
   }
   ```
@@ -33,6 +33,7 @@ import { gate } from '../../../server/http/gate.js';
 const SECRET_FIELD = 'client_secret';
 
 const TENANT_PATTERN = /^[A-Za-z0-9.-]{1,100}$/;
+const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 const badRequest = (response, message) => response.status(400).json({ error: message });
 
@@ -75,6 +76,34 @@ export default async (request, response) => {
   if(incoming.link_verified_emails !== undefined){
     if(typeof incoming.link_verified_emails !== 'boolean') return badRequest(response, 'link_verified_emails must be true or false');
     updates.link_verified_emails = incoming.link_verified_emails;
+  }
+
+  if(incoming.privacy_operator !== undefined){
+    const operator = String(incoming.privacy_operator ?? '').trim();
+    if(operator.length > 200) return badRequest(response, 'The name of who runs the site is too long to be right');
+    updates.privacy_operator = operator;
+  }
+
+  if(incoming.privacy_contact_email !== undefined){
+    const address = String(incoming.privacy_contact_email ?? '').trim();
+    if(address && !EMAIL_PATTERN.test(address)) return badRequest(response, 'The privacy contact must be an email address, such as privacy@example.com');
+    updates.privacy_contact_email = address;
+  }
+
+  if(incoming.privacy_policy_url !== undefined){
+    const raw = String(incoming.privacy_policy_url ?? '').trim();
+    if(raw){
+      let url;
+      try {
+        url = new URL(raw);
+      } catch {
+        return badRequest(response, 'Your own privacy policy address must be a full URL, such as https://example.com/privacy');
+      }
+      if(!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return badRequest(response, 'Your own privacy policy address must be a plain http or https URL');
+      updates.privacy_policy_url = url.href;
+    } else {
+      updates.privacy_policy_url = '';
+    }
   }
 
   /*
@@ -125,7 +154,7 @@ export default async (request, response) => {
     });
   }
 
-  const allowed = new Set([...listProviders().flatMap(fieldNames), 'base_url', 'after_login_path', 'link_verified_emails']);
+  const allowed = new Set([...listProviders().flatMap(fieldNames), 'base_url', 'after_login_path', 'link_verified_emails', 'privacy_operator', 'privacy_contact_email', 'privacy_policy_url']);
 
   for(const [name, value] of Object.entries(updates)){
     // Belt and braces: nothing reaches setSetting that is not both a known field and declared.

@@ -43,6 +43,10 @@ const query = params => {
 
 export const getProviders = () => request('/providers');
 
+export const getPrivacy = () => request('/privacy');
+
+export const getDeletionStatus = code => request(`/data-deletion-status${query({ code })}`);
+
 export const startUrl = ({ provider, mode = 'login', next } = {}) =>
   `${BASE}/start/${encodeURIComponent(provider)}${query({ mode, next })}`;
 

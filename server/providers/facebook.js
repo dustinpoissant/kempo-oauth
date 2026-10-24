@@ -1,3 +1,5 @@
+import signedRequest from '../utils/deletion/signedRequest.js';
+
 /*
   Graph API version. Facebook retires a version about two years after release and quietly serves the
   next one for a request that names a retired version, so this keeps working past that date — but it
@@ -18,6 +20,16 @@ export default {
   clientAuth: 'body',
   authorizeParams: {},
   extraFields: [],
+
+  /*
+    Facebook requires every app to say what happens to a person's data when they remove the app, and
+    its answer is a callback: it POSTs `signed_request` to the URL given in the app's settings and
+    expects a confirmation code back. `verify` is what proves the call is Facebook's, and names whose
+    data to delete.
+  */
+  deletion: {
+    verify: ({ signedRequest: value, secret }) => signedRequest(value, secret),
+  },
 
   endpoints: () => ({
     authorize: `https://www.facebook.com/${VERSION}/dialog/oauth`,

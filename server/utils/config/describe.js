@@ -12,6 +12,9 @@ import { readGlobal, readProvider } from './settings.js';
   way the flow builds it (from `origin`, which is the configured base URL or the request's own).
 */
 export default async origin => {
+  const global = await readGlobal();
+  const privacyUrl = global.privacyPolicyUrl || `${origin}/oauth/privacy/`;
+
   const providers = await Promise.all(listProviders().map(async provider => {
     const config = await readProvider(provider);
     return {
@@ -21,6 +24,13 @@ export default async origin => {
       mono: !!provider.mono,
       consoleUrl: provider.consoleUrl,
       redirectUri: `${origin}/oauth/api/callback/${provider.name}`,
+      links: [
+        { key: 'privacy', label: 'Privacy policy URL', help: 'Most providers will not let an app go live without one.', url: privacyUrl },
+        ...(provider.deletion ? [
+          { key: 'deletion', label: 'Data deletion request callback URL', help: 'Called by the provider, with a signed request, when someone removes the app. Everything this site holds for that person is deleted.', url: `${origin}/oauth/api/data-deletion/${provider.name}` },
+          { key: 'deletionInstructions', label: 'Or data deletion instructions URL', help: 'If the provider offers instructions instead of a callback: a page that says how to have data deleted, and shows what became of a request.', url: `${origin}/oauth/data-deletion/` },
+        ] : []),
+      ],
       enabled: config.enabled,
       clientId: config.clientId,
       hasSecret: !!config.clientSecret,
@@ -31,7 +41,8 @@ export default async origin => {
   }));
 
   return {
-    global: await readGlobal(),
+    global,
+    privacyUrl,
     providers,
     encryptionConfigured: !!process.env.SETTINGS_ENCRYPTION_KEY,
   };

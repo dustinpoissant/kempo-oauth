@@ -28,7 +28,7 @@ const skipped = reason => ({
 });
 
 const PROVIDER_SETTINGS = ['enabled', 'client_id', 'client_secret'];
-const GLOBAL_SETTINGS = ['base_url', 'after_login_path', 'link_verified_emails'];
+const GLOBAL_SETTINGS = ['base_url', 'after_login_path', 'link_verified_emails', 'privacy_operator', 'privacy_contact_email', 'privacy_policy_url'];
 const SECRET = 'fake-client-secret-value';
 
 const configureFake = async ({ enabled = true } = {}) => {
@@ -575,6 +575,11 @@ export default !databaseReachable ? skipped(`${skipReason} — point DATABASE_UR
           ['an off-site after_login_path', { global: { after_login_path: 'https://evil.example' } }],
           ['a scheme-relative after_login_path', { global: { after_login_path: '//evil.example' } }],
           ['a non-boolean link_verified_emails', { global: { link_verified_emails: 'yes' } }],
+          ['a privacy contact that is not an email', { global: { privacy_contact_email: 'not an email' } }],
+          ['a javascript: privacy policy address', { global: { privacy_policy_url: 'javascript:alert(1)' } }],
+          ['a privacy policy address with a password in it', { global: { privacy_policy_url: 'https://user:secret@example.com/privacy' } }],
+          ['a privacy policy address that is not a URL', { global: { privacy_policy_url: 'privacy' } }],
+          ['an over-long privacy operator', { global: { privacy_operator: 'x'.repeat(300) } }],
           ['a non-boolean enabled', { providers: { google: { enabled: 'true' } } }],
           ['a tenant that would change the URL path', { providers: { microsoft: { tenant: '../evil' } } }],
           ['a provider entry that is not an object', { providers: { google: 'enabled' } }],
@@ -587,6 +592,10 @@ export default !databaseReachable ? skipped(`${skipReason} — point DATABASE_UR
 
         const good = await attempt({ global: { base_url: 'https://example.com///' } });
         if(good.body.global.baseUrl !== 'https://example.com') return fail(`base_url stored as ${good.body.global.baseUrl}`);
+
+        const privacy = await attempt({ global: { privacy_operator: '  Example Ltd  ', privacy_contact_email: ' privacy@example.com ', privacy_policy_url: 'https://example.com/privacy' } });
+        if(privacy.statusCode !== 200 || privacy.body.global.privacyOperator !== 'Example Ltd' || privacy.body.global.privacyContactEmail !== 'privacy@example.com') return fail(`privacy settings: ${privacy.statusCode} ${JSON.stringify(privacy.body?.global)}`);
+        if(privacy.body.privacyUrl !== 'https://example.com/privacy' || privacy.body.providers[0].links[0].url !== 'https://example.com/privacy') return fail('the address given to providers is not the site’s own policy');
 
         const unknown = await attempt({ providers: { nonesuch: { enabled: true } }, global: {} });
         if(unknown.statusCode !== 400) return fail('an unknown provider alone should be "nothing to save"');

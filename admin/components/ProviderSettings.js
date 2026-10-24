@@ -117,6 +117,23 @@ export default class ProviderSettings extends ShadowComponent {
     return html`<span class="tc-muted">Off</span>`;
   }
 
+  /*
+    A read-only address to paste into the provider's console, with a Copy button: the privacy policy and, where
+    the provider asks for one, the data-deletion callback. The console refuses an app without them.
+  */
+  #renderUrl({ label, help, url }){
+    return html`
+      <label class="d-b">
+        <span class="d-b">${label}</span>
+        <span class="small tc-muted d-b">${help}</span>
+      </label>
+      <div class="d-f mbh">
+        <input class="ff-mono flex" type="text" readonly .value=${url} />
+        <button class="secondary" @click=${() => this.copy(url)}><k-icon name="content_copy"></k-icon> Copy</button>
+      </div>
+    `;
+  }
+
   #renderProvider(provider){
     const secretEdit = this.edits.providers[provider.name]?.client_secret;
 
@@ -146,6 +163,8 @@ export default class ProviderSettings extends ShadowComponent {
           <input class="ff-mono flex" type="text" readonly .value=${provider.redirectUri} />
           <button class="secondary" @click=${() => this.copy(provider.redirectUri)}><k-icon name="content_copy"></k-icon> Copy</button>
         </div>
+
+        ${provider.links.map(link => this.#renderUrl(link))}
 
         <label>
           <span class="d-b">Client id</span>
@@ -222,6 +241,34 @@ export default class ProviderSettings extends ShadowComponent {
         Turned off, someone who signed up with a password and later uses Google with the same address gets a second account.
         A provider that does not confirm emails (Facebook, Microsoft) is never connected to an existing account either way.
       </p>
+
+      <h2>Privacy</h2>
+      <p class="small tc-muted">
+        Providers will not let an app go live without a privacy policy, and Facebook also wants a way to delete a person's data.
+        This extension publishes a short policy for signing in at <a href=${`${this.data.privacyUrl}`} target="_blank" rel="noopener">${this.data.privacyUrl}</a>,
+        and a data-deletion callback; the addresses to give each provider are beside its redirect URI above.
+      </p>
+
+      <label>
+        <span class="d-b">Who runs this site</span>
+        <span class="small tc-muted d-b">A person or a company, as the privacy policy should name them. Leave empty to say “the operator of this site”.</span>
+        <input type="text" .value=${value('privacy_operator', 'privacyOperator')} @input=${event => this.editGlobal('privacy_operator', event.target.value)} />
+      </label>
+
+      <label>
+        <span class="d-b">Privacy contact email</span>
+        <span class="small tc-muted d-b">Where people write about their data. Shown on the policy and the data-deletion page.</span>
+        <input type="email" placeholder="privacy@example.com" .value=${value('privacy_contact_email', 'privacyContactEmail')} @input=${event => this.editGlobal('privacy_contact_email', event.target.value)} />
+      </label>
+
+      <label>
+        <span class="d-b">Your own privacy policy</span>
+        <span class="small tc-muted d-b">
+          The short policy above only covers signing in. If your site collects anything else, publish your own and put its address here:
+          the policy address given to providers, and the page at /oauth/privacy/, then point to yours. Leave empty to use the one provided.
+        </span>
+        <input type="text" placeholder="https://example.com/privacy" .value=${value('privacy_policy_url', 'privacyPolicyUrl')} @input=${event => this.editGlobal('privacy_policy_url', event.target.value)} />
+      </label>
     `;
   }
 

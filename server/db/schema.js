@@ -29,3 +29,22 @@ export const kempoOauthAccount = pgTable('kempoOauthAccount', {
   createdAt: timestamp('createdAt').notNull(),
   lastLoginAt: timestamp('lastLoginAt').notNull(),
 });
+
+/*
+  One row per data-deletion request a provider has sent (see server/utils/deletion/erase.js).
+
+  Facebook asks for a confirmation code in the answer to such a request and shows the person a link
+  that must later say what became of it, so the code is what the status page looks up. The row holds
+  no personal data on purpose: what the request was *about* has just been deleted, and a record
+  that kept the provider's user id would be the very thing the person asked to have removed.
+
+  `status` is `deleted` (the account and every sign-in link were removed), `unlinked` (the person's
+  account stayed, because it is an administrator's, and only this provider's link was removed) or
+  `nothing` (this site held nothing for that person).
+*/
+export const kempoOauthDeletion = pgTable('kempoOauthDeletion', {
+  code: text('code').primaryKey(),
+  provider: text('provider').notNull(),
+  status: text('status').notNull(),
+  requestedAt: timestamp('requestedAt').notNull(),
+});
