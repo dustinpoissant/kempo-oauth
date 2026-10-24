@@ -1,0 +1,23 @@
+<!--
+  owner: kempo-oauth
+-->
+<page template="default" title="Deleting your data">
+<content>
+<h1>Deleting your data</h1>
+<p>If a provider gave you a confirmation code after you removed <span data-fact="siteName">this site</span> from your connected apps, enter it below to see what happened.</p>
+
+<k-oauth-deletion-status></k-oauth-deletion-status>
+
+<h2>How to have your data deleted</h2>
+<ul>
+  <li><strong>Yourself:</strong> go to <a href="/delete-account/">Delete your account</a>. We email a six-digit code to the address on your account, and when you enter it your account is deleted.</li>
+  <li><strong>Through Facebook:</strong> remove <span data-fact="siteName">this site</span> from the apps connected to your Facebook account. The site is told, deletes your account and its sign-in links straight away, and Facebook gives you a confirmation code to check here.</li>
+  <li><strong>By email:</strong> write to <span data-fact="contact">the site’s operator</span> from the address on your account, and ask for it to be deleted.</li>
+</ul>
+<p>What is deleted, and what is kept, is described in the <a href="/privacy/#delete">privacy policy</a>.</p>
+</content>
+<content location="scripts">
+<script type="module" src="/oauth/components/PolicyFacts.js"></script>
+<script type="module" src="/oauth/components/DeletionStatus.js"></script>
+</content>
+</page>
