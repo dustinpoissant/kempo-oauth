@@ -66,6 +66,6 @@ export const getSettings = () => request('/settings');
 
 export const saveSettings = body => request('/settings', json('PUT', body));
 
-export const getAccounts = ({ limit, offset, provider } = {}) => request(`/accounts${query({ limit, offset, provider })}`);
+export const getAccounts = ({ limit, offset, provider, userId } = {}) => request(`/accounts${query({ limit, offset, provider, userId })}`);
 
 export const deleteAccount = id => request(`/accounts/${encodeURIComponent(id)}`, { method: 'DELETE' });

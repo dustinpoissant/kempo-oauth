@@ -50,8 +50,9 @@ export const deleteAccountById = async id => {
 export const deleteAccountsForProviderUser = (provider, providerUserId) =>
   db.delete(account).where(and(eq(account.provider, provider), eq(account.providerUserId, providerUserId)));
 
-export const listAccounts = async ({ limit = 25, offset = 0, provider = null } = {}) => {
-  const where = provider ? eq(account.provider, provider) : undefined;
+export const listAccounts = async ({ limit = 25, offset = 0, provider = null, userId = null } = {}) => {
+  const filters = [provider && eq(account.provider, provider), userId && eq(account.userId, userId)].filter(Boolean);
+  const where = filters.length ? and(...filters) : undefined;
   const take = Math.min(Math.max(parseInt(limit, 10) || 25, 1), 200);
   const skip = Math.max(parseInt(offset, 10) || 0, 0);
 

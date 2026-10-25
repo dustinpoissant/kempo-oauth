@@ -6,6 +6,7 @@ All notable changes to `kempo-oauth` are documented in this file.
 
 ### Changed
 
+- **Connected accounts are on each user's admin page now**, in a tab beside Information, Groups and Sessions (`/admin/accounts/users/<id>`). The all-accounts list on Sign-in Providers is removed. The tab is contributed through the new `admin-user-tabs` location in kempo.
 - **X sign-in asks for an email address first.** X shares none, so a person who signs in with X is no longer given a placeholder address. A dialog asks for their email, sends a six-digit code to it, and an account is created, or joined to an existing one with that address, only when the code is right. Nothing is stored about them before then except a row that expires after fifteen minutes. The same applies to any provider that completes a sign-in without sharing an address.
 - **`signIn` refuses a profile with no email** (`no_email`) instead of creating an account with a placeholder address. Its one caller, the pending sign-in, always has an address by then.
 - **Microsoft sign-in is removed.** Its sign-in needs an Azure subscription, which asks for a payment card, so it is no longer offered. Its settings, icon and endpoints are gone; any Microsoft sign-in links already stored stay in the table until the account is deleted or the link is removed.
