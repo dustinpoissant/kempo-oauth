@@ -5,22 +5,21 @@ import { html } from '/kempo-ui/lit-all.min.js';
 import { getSettings, saveSettings } from '/oauth/sdk.js';
 
 /*
-  Connecting the site to sign-in providers.
+  One sign-in provider's settings, served at /admin/extension/kempo-oauth/components/ProviderSettings.js. The page puts one of these
+  in each provider's tab (`provider="google"`), so the tabs are the page's own, and each tab saves its own provider with its own button.
 
   Three things on this screen are load-bearing and none of them is the form itself:
 
-  - **The redirect URI.** Copy-pasteable, one per provider, beside the fields it goes with. A site
-    whose redirect URI is wrong gets as far as the provider's own error page, which names neither
-    this site nor the cause, and the person looking at it is not the person who can fix it.
-  - **The status line.** "Active", "Off" and "Incomplete" are different things and the third is the
-    one that surprises people: a provider with an id and no secret is simply not offered, and
-    nothing on the login page says why.
-  - **Blank means unchanged.** A secret cannot be read back, so its field is always empty. Saving
-    the form after changing something else must not wipe the secret, and clearing one on purpose is
-    a separate, explicit button.
+  - **The redirect URI.** Copy-pasteable, beside the fields it goes with. A site whose redirect URI is wrong gets as far as the
+    provider's own error page, which names neither this site nor the cause, and the person looking at it is not the person who can fix it.
+  - **The status line.** "Active", "Off" and "Incomplete" are different things and the third is the one that surprises people: a
+    provider with an id and no secret is simply not offered, and nothing on the login page says why.
+  - **Blank means unchanged.** A secret cannot be read back, so its field is always empty. Saving the tab after changing something
+    else must not wipe the secret, and clearing one on purpose is a separate, explicit button.
 */
 export default class ProviderSettings extends ShadowComponent {
   static properties = {
+    provider: { type: String, reflect: true },
     data: { type: Object, state: true },
     edits: { type: Object, state: true },
     saving: { type: Boolean, state: true },
@@ -30,29 +29,28 @@ export default class ProviderSettings extends ShadowComponent {
 
   constructor(){
     super();
+    this.provider = '';
     this.data = null;
-    /*
-      Only what was touched, shaped like the request body. An untouched field is not sent at all,
-      which is what makes "blank means unchanged" true on the wire and not only in the route.
-    */
-    this.edits = { global: {}, providers: {} };
+    /* Only what was touched, for this provider. An untouched field is not sent at all. */
+    this.edits = {};
     this.saving = false;
     this.error = '';
     this.notice = '';
   }
 
-  /*
-    Lifecycle
-  */
-
   connectedCallback(){
     super.connectedCallback();
-    this.load();
+    const pane = this.closest('k-tab-content');
+    // Loads when its tab is first opened, so a tab nobody opens makes no requests.
+    if(!pane || pane.active) this.load();
+    else this.closest('k-tabs')?.addEventListener('tabfirstshown', ({ detail }) => {
+      if(detail.tab === pane.name) this.load();
+    });
   }
 
-  /*
-    Data
-  */
+  get info(){
+    return this.data?.providers.find(provider => provider.name === this.provider);
+  }
 
   load = async () => {
     const [error, data] = await getSettings();
@@ -60,56 +58,44 @@ export default class ProviderSettings extends ShadowComponent {
       this.error = error.msg;
       return;
     }
-
     this.data = data;
-    this.edits = { global: {}, providers: {} };
+    this.edits = {};
   };
 
-  editGlobal = (name, value) => {
-    this.edits = { ...this.edits, global: { ...this.edits.global, [name]: value } };
+  editProvider = (name, value) => {
+    this.edits = { ...this.edits, [name]: value };
   };
 
-  editProvider = (provider, name, value) => {
-    const current = this.edits.providers[provider] || {};
-    this.edits = { ...this.edits, providers: { ...this.edits.providers, [provider]: { ...current, [name]: value } } };
-  };
-
+  /* Saves this provider's changes only. */
   save = async () => {
     this.saving = true;
     this.error = '';
     this.notice = '';
-
-    const [error] = await saveSettings(this.edits);
+    const [error] = await saveSettings({ global: {}, providers: { [this.provider]: this.edits } });
     this.saving = false;
-
     if(error){
       this.error = error.msg;
       return;
     }
-
     this.notice = 'Saved.';
     await this.load();
   };
 
-  clearSecret = async name => {
-    this.edits = { ...this.edits, providers: { ...this.edits.providers, [name]: { client_secret: null } } };
+  clearSecret = async () => {
+    this.edits = { client_secret: null };
     await this.save();
   };
 
-  copy = (text) => {
+  copy = text => {
     navigator.clipboard?.writeText(text);
     this.notice = 'Copied.';
   };
 
   get dirty(){
-    return Object.keys(this.edits.global).length > 0 || Object.keys(this.edits.providers).length > 0;
+    return Object.keys(this.edits).length > 0;
   }
 
-  /*
-    Rendering
-  */
-
-  #valueOf = (provider, name, stored) => this.edits.providers[provider.name]?.[name] ?? stored;
+  #valueOf = (name, stored) => this.edits[name] ?? stored;
 
   #renderStatus(provider){
     if(provider.active) return html`<span class="tc-success">Active — shown on the login and register pages</span>`;
@@ -117,10 +103,7 @@ export default class ProviderSettings extends ShadowComponent {
     return html`<span class="tc-muted">Off</span>`;
   }
 
-  /*
-    A read-only address to paste into the provider's console, with a Copy button: the privacy policy and, where
-    the provider asks for one, the data-deletion callback. The console refuses an app without them.
-  */
+  /* A read-only address to paste into the provider's console, with a Copy button. */
   #renderUrl({ label, help, url }){
     return html`
       <label class="d-b">
@@ -134,10 +117,27 @@ export default class ProviderSettings extends ShadowComponent {
     `;
   }
 
-  #renderProvider(provider){
-    const secretEdit = this.edits.providers[provider.name]?.client_secret;
+  render(){
+    if(this.error && !this.data) return html`<p class="tc-danger">${this.error}</p>`;
+    if(!this.data) return html`<k-spinner></k-spinner>`;
+    const provider = this.info;
+    if(!provider) return html`<p class="tc-danger">There is no sign-in provider called “${this.provider}”.</p>`;
+    const secretEdit = this.edits.client_secret;
 
     return html`
+      ${!this.data.encryptionConfigured ? html`
+        <div class="card tc-danger mb">
+          <strong>SETTINGS_ENCRYPTION_KEY is not set on this server.</strong>
+          <p class="small">
+            Client secrets are encrypted with it, so none can be stored until it exists. Generate one with
+            <code class="ff-mono">node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code>,
+            put it in the site’s environment, and restart. Back it up — losing it makes every stored secret unrecoverable.
+          </p>
+        </div>
+      ` : ''}
+      ${this.error ? html`<p class="tc-danger">${this.error}</p>` : ''}
+      ${this.notice ? html`<p class="tc-success small">${this.notice}</p>` : ''}
+
       <div class="card mb">
         <h3>
           ${provider.mono
@@ -149,8 +149,8 @@ export default class ProviderSettings extends ShadowComponent {
         <label class="checkbox">
           <input
             type="checkbox"
-            .checked=${this.#valueOf(provider, 'enabled', provider.enabled)}
-            @change=${event => this.editProvider(provider.name, 'enabled', event.target.checked)}
+            .checked=${this.#valueOf('enabled', provider.enabled)}
+            @change=${event => this.editProvider('enabled', event.target.checked)}
           />
           Offer “Continue with ${provider.label}”
         </label>
@@ -171,8 +171,8 @@ export default class ProviderSettings extends ShadowComponent {
           <input
             type="text"
             autocomplete="off"
-            .value=${this.#valueOf(provider, 'client_id', provider.clientId)}
-            @input=${event => this.editProvider(provider.name, 'client_id', event.target.value)}
+            .value=${this.#valueOf('client_id', provider.clientId)}
+            @input=${event => this.editProvider('client_id', event.target.value)}
           />
         </label>
 
@@ -183,10 +183,10 @@ export default class ProviderSettings extends ShadowComponent {
             autocomplete="off"
             placeholder=${provider.hasSecret ? '•••••••• — leave blank to keep' : ''}
             .value=${typeof secretEdit === 'string' ? secretEdit : ''}
-            @input=${event => this.editProvider(provider.name, 'client_secret', event.target.value)}
+            @input=${event => this.editProvider('client_secret', event.target.value)}
           />
           ${provider.hasSecret ? html`
-            <button class="link small" ?disabled=${this.saving} @click=${() => this.clearSecret(provider.name)}>Clear this secret</button>
+            <button class="link small" ?disabled=${this.saving} @click=${this.clearSecret}>Clear this secret</button>
           ` : ''}
         </label>
 
@@ -197,101 +197,18 @@ export default class ProviderSettings extends ShadowComponent {
             <input
               type="text"
               autocomplete="off"
-              .value=${this.#valueOf(provider, field.name, field.value)}
-              @input=${event => this.editProvider(provider.name, field.name, event.target.value)}
+              .value=${this.#valueOf(field.name, field.value)}
+              @input=${event => this.editProvider(field.name, event.target.value)}
             />
           </label>
         `)}
       </div>
-    `;
-  }
 
-  #renderGlobal(){
-    const { global } = this.data;
-    const value = (name, key) => this.edits.global[name] ?? global[key];
-
-    return html`
-      <h2>Site</h2>
-
-      <label>
-        <span class="d-b">Site address</span>
-        <span class="small tc-muted d-b">
-          Where this site is reached, such as https://example.com. Leave empty to work it out from each request —
-          fine for a site reached directly, wrong behind a proxy that changes the scheme or the host.
-          Every redirect URI below is built from it.
-        </span>
-        <input type="text" placeholder="https://example.com" .value=${value('base_url', 'baseUrl')} @input=${event => this.editGlobal('base_url', event.target.value)} />
-      </label>
-
-      <label>
-        <span class="d-b">After signing in</span>
-        <span class="small tc-muted d-b">The page a visitor lands on, unless the page they came from asked for somewhere else.</span>
-        <input type="text" .value=${value('after_login_path', 'afterLoginPath')} @input=${event => this.editGlobal('after_login_path', event.target.value)} />
-      </label>
-
-      <label class="checkbox">
-        <input
-          type="checkbox"
-          .checked=${value('link_verified_emails', 'linkVerifiedEmails')}
-          @change=${event => this.editGlobal('link_verified_emails', event.target.checked)}
-        />
-        Connect a provider sign-in to an existing account with the same email, when the provider has confirmed that email
-      </label>
-      <p class="small tc-muted">
-        Turned off, someone who signed up with a password and later uses Google with the same address gets a second account.
-        A provider that does not confirm emails (Facebook) is never connected to an existing account either way.
-      </p>
-
-      <h2>Privacy</h2>
-      <p class="small tc-muted">
-        The privacy policy and the data-deletion page are ordinary pages of this site, at <a href=${this.data.privacyUrl} target="_blank" rel="noopener">${this.data.privacyUrl}</a>
-        and <a href=${this.data.privacyUrl.replace(/privacy\/$/, 'data-deletion/')} target="_blank" rel="noopener">${this.data.privacyUrl.replace(/privacy\/$/, 'data-deletion/')}</a>.
-        Edit them in the admin like any page: this extension writes them on install and update, and never overwrites a page you have changed.
-        The addresses to give each provider are beside its redirect URI above.
-      </p>
-
-      <label>
-        <span class="d-b">Who runs this site</span>
-        <span class="small tc-muted d-b">A person or a company, as the privacy policy should name them. Leave empty to say “the operator of this site”.</span>
-        <input type="text" .value=${value('privacy_operator', 'privacyOperator')} @input=${event => this.editGlobal('privacy_operator', event.target.value)} />
-      </label>
-
-      <label>
-        <span class="d-b">Privacy contact email</span>
-        <span class="small tc-muted d-b">Where people write about their data. Shown on the policy and the data-deletion page.</span>
-        <input type="email" placeholder="privacy@example.com" .value=${value('privacy_contact_email', 'privacyContactEmail')} @input=${event => this.editGlobal('privacy_contact_email', event.target.value)} />
-      </label>
-
-    `;
-  }
-
-  render(){
-    if(!this.data) return this.error ? html`<p class="tc-danger">${this.error}</p>` : html`<k-spinner></k-spinner>`;
-
-    return html`
-      ${!this.data.encryptionConfigured ? html`
-        <div class="card tc-danger mb">
-          <strong>SETTINGS_ENCRYPTION_KEY is not set on this server.</strong>
-          <p class="small">
-            Client secrets are encrypted with it, so none can be stored until it exists. Generate one with
-            <code class="ff-mono">node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code>,
-            put it in the site’s environment, and restart. Back it up — losing it makes every stored secret unrecoverable.
-          </p>
-        </div>
-      ` : ''}
-      ${this.error ? html`<p class="tc-danger">${this.error}</p>` : ''}
-      ${this.notice ? html`<p class="tc-success small">${this.notice}</p>` : ''}
-
-      <h2>Providers</h2>
-      ${this.data.providers.map(provider => this.#renderProvider(provider))}
-
-      ${this.#renderGlobal()}
-
-      <button class="primary mt" ?disabled=${this.saving || !this.dirty} @click=${this.save}>
+      <button class="primary" ?disabled=${this.saving || !this.dirty} @click=${this.save}>
         ${this.saving ? 'Saving…' : 'Save settings'}
       </button>
     `;
   }
 }
 
-customElements.define('k-oauth-settings', ProviderSettings);
+customElements.define('k-oauth-provider', ProviderSettings);

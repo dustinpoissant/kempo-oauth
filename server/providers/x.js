@@ -1,6 +1,6 @@
 export default {
   name: 'x',
-  label: 'X',
+  label: 'X (Twitter)',
   icon: 'x.svg',
   mono: true,
   consoleUrl: 'https://developer.x.com/en/portal/dashboard',

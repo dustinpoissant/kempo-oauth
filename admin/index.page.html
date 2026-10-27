@@ -3,6 +3,8 @@ locked: true
 -->
 <page title="Sign-in Providers - Admin">
 <content>
+  <script type="module" src="/kempo-ui/components/Tabs.js"></script>
+  <script type="module" src="/admin/extension/kempo-oauth/components/SiteSettings.js"></script>
   <script type="module" src="/admin/extension/kempo-oauth/components/ProviderSettings.js"></script>
 
   <div>
@@ -13,7 +15,15 @@ locked: true
       appears on the login and register pages until a provider is switched on and has both.
     </p>
 
-    <k-oauth-settings></k-oauth-settings>
+    <k-tabs active="general" hash-routing>
+      <k-tab for="general">General</k-tab>
+
+      <k-tab-content name="general">
+        <k-oauth-site></k-oauth-site>
+      </k-tab-content>
+
+      <location name="oauth-admin-tabs" />
+    </k-tabs>
   </div>
 </content>
 </page>
